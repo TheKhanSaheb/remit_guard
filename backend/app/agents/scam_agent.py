@@ -40,7 +40,7 @@ def run_scam_agent(user_query: str) -> str:
     retrieved_info = retrieve_relevant_chunks(user_query, k=4)
 
     search_results = search_exchange_rate(
-        f"{user_query} remittance scam fraud Bangladesh"
+    f"{user_query} Bangladesh Bank BFIU official hundi hawala remittance fraud AML CFT"
     )
 
     messages = [

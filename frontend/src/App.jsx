@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import "./index.css";
 import "./App.css";
 
@@ -24,7 +24,18 @@ function getStatus(route) {
   return STATUS_META[key] || { label: route || "Result", tone: "info" };
 }
 
-function formatResponse(text) {
+// Accepts either a plain string (older backend shape) or the
+// structured { summary, recommendation, ... } dict the aggregator
+// returns now — always resolves to a string before formatting.
+function resolveResponseText(response) {
+  if (!response) return "";
+  if (typeof response === "string") return response;
+  return response.summary || "";
+}
+
+function formatResponse(response) {
+  const text = resolveResponseText(response);
+
   if (!text) return [];
 
   const lines = text.split("\n");
@@ -36,6 +47,7 @@ function formatResponse(text) {
 
     if (clean.startsWith("###")) {
       if (current) sections.push(current);
+
       current = {
         title: clean.replace(/^###\s*/, "").replace(/\*\*/g, ""),
         content: [],
@@ -43,11 +55,15 @@ function formatResponse(text) {
     } else if (current) {
       if (clean) current.content.push(clean);
     } else if (clean) {
-      current = { title: "Summary", content: [clean] };
+      current = {
+        title: "Summary",
+        content: [clean],
+      };
     }
   });
 
   if (current) sections.push(current);
+
   return sections;
 }
 
@@ -134,6 +150,22 @@ function IconSend(props) {
   );
 }
 
+function IconImage(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="8.5" cy="9.5" r="1.5" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M21 16l-5.5-5.5L9 17"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function HeroArt() {
   return (
     <svg
@@ -185,6 +217,8 @@ function App() {
   const [message, setMessage] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
 
   const sendMessage = async () => {
     if (!message.trim() || loading) return;
@@ -213,6 +247,37 @@ function App() {
     }
   };
 
+  const handleScreenshotUpload = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // allow re-selecting the same file later
+    if (!file || uploading) return;
+
+    setUploading(true);
+    setResult(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("http://127.0.0.1:8000/analyze-screenshot", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || "Something went wrong");
+      }
+
+      setResult(data);
+    } catch (error) {
+      setResult({ route: "error", response: error.message });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -222,6 +287,7 @@ function App() {
 
   const sections = result ? formatResponse(result.response) : [];
   const status = result ? getStatus(result.route) : null;
+  const busy = loading || uploading;
 
   return (
     <div className="app">
@@ -239,10 +305,10 @@ function App() {
           <div className="hero-copy">
             <h1>Before you send, ask.</h1>
             <p>
-              Describe your transfer, or paste a message you're unsure about.
-              RemitGuard checks it against current rates, common scam
-              patterns, and legal transfer channels, then explains what it
-              finds in plain language.
+              Describe your transfer, paste a message you're unsure about, or
+              upload a screenshot of an offer. RemitGuard checks it against
+              current rates, common scam patterns, and legal transfer
+              channels, then explains what it finds in plain language.
             </p>
 
             <div className="check-panel">
@@ -260,27 +326,47 @@ function App() {
                   <kbd>Enter</kbd> to check &middot; <kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line
                 </span>
 
-                <button
-                  className="check-button"
-                  onClick={sendMessage}
-                  disabled={loading || !message.trim()}
-                >
-                  {loading ? (
-                    <>
-                      Checking
-                      <span aria-hidden="true">
-                        <span className="spinner-dot" />
-                        <span className="spinner-dot" />
-                        <span className="spinner-dot" />
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <IconSend width="16" height="16" />
-                      Check my transfer
-                    </>
-                  )}
-                </button>
+                <div className="check-panel-actions">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    onChange={handleScreenshotUpload}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    className="upload-button"
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={busy}
+                    title="Upload a screenshot of a suspicious message or offer"
+                  >
+                    <IconImage width="16" height="16" />
+                    {uploading ? "Reading image…" : "Upload screenshot"}
+                  </button>
+
+                  <button
+                    className="check-button"
+                    onClick={sendMessage}
+                    disabled={busy || !message.trim()}
+                  >
+                    {loading ? (
+                      <>
+                        Checking
+                        <span aria-hidden="true">
+                          <span className="spinner-dot" />
+                          <span className="spinner-dot" />
+                          <span className="spinner-dot" />
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <IconSend width="16" height="16" />
+                        Check my transfer
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="examples">
@@ -310,6 +396,13 @@ function App() {
               </span>
             </div>
 
+            {result.extracted_text && (
+              <div className="extracted-text">
+                <h3>Text found in your screenshot</h3>
+                <p>{result.extracted_text}</p>
+              </div>
+            )}
+
             <div className="answer-sections">
               {sections.map((section, index) => (
                 <div className="answer-section" key={index}>
@@ -338,7 +431,7 @@ function App() {
           <div className="feature" style={{ "--feature-accent": "var(--danger)" }}>
             <IconAlert className="icon-badge" />
             <h3>Scam detection</h3>
-            <p>Paste a suspicious message or offer to see if it matches known scam patterns.</p>
+            <p>Paste a suspicious message, or upload a screenshot, to see if it matches known scam patterns.</p>
           </div>
 
           <div className="feature" style={{ "--feature-accent": "var(--gold)" }}>

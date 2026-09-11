@@ -15,10 +15,37 @@ def aggregate_response(state: dict) -> dict:
             "sources": [],
         }
 
+    # Extract source URLs mentioned by the agent
+    sources = []
+
+    for line in result.splitlines():
+        if "http://" in line or "https://" in line:
+            parts = line.split("http", 1)
+
+            if len(parts) == 2:
+                url = "http" + parts[1].strip()
+
+                if url.startswith("http"):
+                    sources.append(url)
+
+    # Remove duplicate sources
+    sources = list(dict.fromkeys(sources))
+
     return {
         "summary": result,
-        "recommendation": "",
-        "safety_warnings": [],
-        "what_to_verify": [],
-        "sources": [],
+        "recommendation": (
+            "Verify the final rate, fees, recipient amount, "
+            "and legality before sending money."
+        ),
+        "safety_warnings": [
+            "Do not send money through unknown or unauthorized intermediaries.",
+            "Do not share OTPs, passwords, or sensitive account credentials.",
+        ],
+        "what_to_verify": [
+            "Exchange rate",
+            "Transaction fees",
+            "Final recipient amount",
+            "Legitimate remittance channel",
+        ],
+        "sources": sources,
     }

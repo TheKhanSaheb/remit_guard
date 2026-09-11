@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     langsmith_endpoint: str = "https://api.smith.langchain.com"
     langsmith_project: str = "remitguard"
 
+    tesseract_cmd: str = ""
+
     app_env: str = "development"
 
     class Config:

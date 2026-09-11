@@ -1,4 +1,19 @@
+# Environment variables
 .env
+.env.*
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.venv/
+venv/
+
+# RAG / vector database
 backend/app/rag/chroma_db/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Logs
+*.log
