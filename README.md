@@ -21,7 +21,7 @@ RemitGuard combines **LLMs, multi-agent orchestration, web search, Retrieval-Aug
 | Item | Link |
 |---|---|
 | **GitHub Repository** | https://github.com/TheKhanSaheb/remit_guard |
-| **Demo YouTube Video** | *Add video link here* |
+| **Demo YouTube Video** | https://youtu.be/JWRYyE_QVxY?si=-kkwgnhHsNgrOASd|
 | **Main Application Trace — Scam + RAG + Search** | https://smith.langchain.com/public/189112aa-0573-41f6-93bd-490adc581fd5/r/01a09107-5639-7952-b2a6-221fcc368531?start_time=2026-09-11T15%3A12%3A52.281925Z |
 | **Rate Comparator Agent — Rate + Search** | https://smith.langchain.com/public/1570c209-6143-4817-b473-943125d60b56/r/01a0910a-ab6e-70f0-8dba-82ee889a2a03?start_time=2026-09-11T15%3A16%3A30.702233Z |
 | **Channel Advisor — RAG + Search** | https://smith.langchain.com/public/f56befb9-63b7-45c0-b7c1-ae16ae3b02e5/r/01a0910d-327b-72e0-a588-336a14efaea5?start_time=2026-09-11T15%3A19%3A16.347955Z |
