@@ -1,12 +1,22 @@
-**# RemitGuard**
+# RemitGuard
 
+> **A Multi-Agent AI Assistant for Safer International Remittances**
 
+RemitGuard is a multi-agent AI assistant designed to help people sending or receiving international remittances — especially migrant-worker families sending money to Bangladesh.
 
-RemitGuard is a multi-agent AI assistant that helps people sending or receiving international remittances — especially migrant-worker families sending money to Bangladesh — check exchange rates, spot scam patterns, and choose safe, legal transfer channels before they send money.
+The system helps users:
 
-**---**
+- Check current exchange rates
+- Identify potential scam patterns
+- Understand the risks of informal channels such as Hundi/Hawala
+- Find safer and regulated transfer channels
+- Verify suspicious remittance offers using screenshot-based OCR
 
-## Submission Links
+RemitGuard combines **LLMs, multi-agent orchestration, web search, Retrieval-Augmented Generation (RAG), vector databases, OCR, and LangSmith tracing** into a single workflow.
+
+---
+
+# Submission Links
 
 | Item | Link |
 |---|---|
@@ -16,432 +26,796 @@ RemitGuard is a multi-agent AI assistant that helps people sending or receiving 
 | **Rate Comparator Agent — Rate + Search** | https://smith.langchain.com/public/1570c209-6143-4817-b473-943125d60b56/r/01a0910a-ab6e-70f0-8dba-82ee889a2a03?start_time=2026-09-11T15%3A16%3A30.702233Z |
 | **Channel Advisor — RAG + Search** | https://smith.langchain.com/public/f56befb9-63b7-45c0-b7c1-ae16ae3b02e5/r/01a0910d-327b-72e0-a588-336a14efaea5?start_time=2026-09-11T15%3A19%3A16.347955Z |
 
+### LangSmith Trace Evidence
 
+The public LangSmith traces demonstrate the execution of the RemitGuard system, including:
 
-**---**
+- Agent execution
+- LLM invocation
+- Internet/web search
+- RAG retrieval
+- Vector database usage
+- Scam risk analysis
+- Exchange-rate lookup
+- Safe-channel recommendations
+- End-to-end workflow execution
 
-**## 1. About the Project**
+---
 
-Every year, millions of migrant workers send money home to their families, and every year a meaningful share of that money is lost to unfair exchange rates, informal "hundi"/hawala channels, or outright scams — simply because the sender or receiver had no quick, trustworthy way to check whether a rate, a message, or a transfer method was legitimate before acting on it.
+# 1. About the Project
 
-RemitGuard is not a general-purpose chatbot. It's a purpose-built assistant that takes a user's question (or a screenshot of a suspicious offer) and routes it to one of several specialized AI agents, each backed by real data: live web search for current rates, and a knowledge base built from actual Bangladesh Bank, BFIU, and FATF regulatory documents for scam/legality questions.
+International remittances are an important source of income for millions of families. However, people sending or receiving money can face several risks, including:
 
-**## 2. Target User**
+- Unfair exchange rates
+- Fraudulent remittance offers
+- Fake agents or service providers
+- Informal transfer channels
+- Hundi/Hawala-related risks
+- Lack of access to clear and trustworthy information
 
-\- A **\*\*remittance sender abroad\*\*** (a migrant worker) who wants to confirm a quoted exchange rate or check whether a transfer offer looks legitimate before sending money.
+In many cases, users need to make decisions quickly but may not know whether an exchange rate, transfer offer, or payment channel is trustworthy.
 
-\- A **\*\*remittance receiver in Bangladesh\*\*** (often a family member) who is offered an unfamiliar transfer method or a "special rate" and wants a second opinion.
+**RemitGuard addresses this problem by providing an AI-powered assistant that can analyze the user's request using multiple specialized agents and external sources.**
 
-\- Neither user is assumed to be financially sophisticated — the app is built to explain things in plain language, not jargon.
+The system combines:
 
-**## 3. Purpose of the Project**
+- Live web search for current information
+- Regulatory and financial documents through RAG
+- LLM-based reasoning
+- Scam-pattern analysis
+- OCR for suspicious screenshots
+- LangGraph-based agent orchestration
 
-To give remittance senders and receivers a fast, independent way to:
+Rather than functioning as a general-purpose chatbot, RemitGuard is specifically designed around **remittance safety and verification**.
 
-1\. Check whether a quoted exchange rate is reasonable.
+---
 
-2\. Assess whether a transfer channel or offer shows signs of being a scam or an illegal channel (hundi/hawala).
+# 2. Target Users
 
-3\. Get a recommendation for a safe, regulated way to send money.
+RemitGuard is primarily designed for two groups.
 
-The goal is to reduce financial loss and legal risk for a population that is frequently targeted precisely because good information is hard to access.
+## Remittance Senders
 
-**## 4. Real-World Impact**
+Migrant workers or other users sending money from abroad can use RemitGuard to:
 
-\- Bangladesh is one of the world's largest recipients of remittances, and remittance income is a major contributor to household welfare and the national economy.
+- Check a quoted exchange rate
+- Verify information about a transfer service
+- Identify suspicious offers
+- Understand potential risks before sending money
 
-\- A large share of that flow still moves through informal, unregulated hundi/hawala channels — which regulators (Bangladesh Bank, BFIU, FATF) explicitly flag as vulnerable to fraud and money laundering.
+## Remittance Receivers
 
-\- Even a small improvement in the number of people who verify a rate or a channel before sending money translates into real money saved and real fraud prevented, at population scale.
+Family members or recipients in Bangladesh can use the system to:
 
-**## 5. Why This Needs AI**
+- Check unfamiliar transfer methods
+- Understand the risks of Hundi/Hawala
+- Evaluate suspicious messages or offers
+- Learn about safer and regulated alternatives
 
-This isn't a problem a static FAQ page or a simple form can solve, because the right answer depends on combining several different, constantly-changing kinds of information:
+The system is designed for users without advanced financial knowledge. Therefore, responses are intended to be **simple, practical, and easy to understand**.
 
-\- **\*\*Live data\*\*** — exchange rates change daily; a hardcoded answer would be wrong within hours.
+---
 
-\- **\*\*Authoritative but dense source material\*\*** — financial regulations and AML reports are long, technical documents; most users won't read a 100-page FATF report themselves.
+# 3. Purpose of the Project
 
-\- **\*\*Judgment under ambiguity\*\*** — "is this offer a scam?" doesn't have a lookup-table answer; it requires reasoning over the user's specific description against known fraud patterns.
+The main purpose of RemitGuard is to provide users with a quick and accessible way to make safer remittance decisions.
 
-An LLM-based multi-agent system, grounded in live search and a real regulatory knowledge base (RAG), is well suited to exactly this kind of reasoning — which a simple chatbot with no external grounding could not do reliably.
+The system focuses on three main tasks:
 
-**## 6. Architecture**
+1. **Exchange Rate Verification**  
+   Check whether a quoted exchange rate is reasonable using current web information.
 
-\`\`\`
+2. **Scam and Risk Detection**  
+   Analyze whether a transfer offer, channel, or message contains potential warning signs.
 
-User query (text or screenshot)
+3. **Safe Channel Recommendation**  
+   Recommend regulated and safer remittance channels based on available information.
 
-        │
+The overall goal is to help users identify potential risks **before they send or receive money**.
 
-        ▼
+---
 
-   Router Agent  ──classifies intent──▶ rate | scam | channel | general
+# 4. Real-World Impact
 
-        │
+Remittance income plays an important role in Bangladesh's economy and in the lives of many families.
 
-   ┌────┴────┬─────────┬──────────┐
+However, users can be exposed to financial and legal risks when using unreliable or informal channels.
 
-   ▼         ▼         ▼          ▼
+RemitGuard aims to reduce these risks by helping users:
 
- Rate       Scam     Channel   General
+- Verify information before acting
+- Recognize suspicious offers
+- Understand Hundi/Hawala-related risks
+- Access information from regulatory sources
+- Choose safer and regulated transfer options
 
- Agent      Agent     Agent     Agent
+Even a small improvement in users' ability to verify a rate or transfer channel can help reduce avoidable financial losses.
 
-(search)   (RAG)   (RAG+search) (LLM)
+---
 
-   │         │         │          │
+# 5. Why This Needs AI
 
-   └────┬────┴─────────┴──────────┘
+A traditional FAQ or static information page would not be sufficient for this problem because remittance-related questions can require different types of information and reasoning.
 
-        ▼
+## 5.1 Live Information
 
-  Response Aggregator
+Exchange rates change frequently.
 
-        │
+A hardcoded exchange rate may quickly become outdated, so RemitGuard uses **web search grounding** to retrieve current information.
 
-        ▼
+## 5.2 Complex Regulatory Information
 
-  Final structured answer
+Financial regulations and AML/CFT reports can be lengthy and difficult for ordinary users to understand.
 
-\`\`\`
+RemitGuard uses **Retrieval-Augmented Generation (RAG)** to retrieve relevant information from regulatory and financial documents.
 
-**\*\*Agents\*\***
+## 5.3 Ambiguous Scam Situations
 
-\- **\*\*Router Agent\*\*** — an LLM call that classifies the user's query into \`rate\`, \`scam\`, \`channel\`, or \`general\`.
+A question such as:
 
-\- **\*\*Rate Comparator Agent\*\*** — uses Tavily web search (search grounding) to answer live exchange-rate questions.
+> "Someone offered me a better exchange rate if I send money through this person. Is it safe?"
 
-\- **\*\*Scam Detector Agent\*\*** — retrieves relevant chunks from the RAG knowledge base (Bangladesh AML law, BFIU circulars, FATF hawala/hundi reports) to assess whether a described channel or offer looks fraudulent.
+cannot always be answered using a simple lookup table.
 
-\- **\*\*Channel Advisor Agent\*\*** — combines RAG + web search to recommend regulated, legal transfer channels.
+The system needs to compare the user's situation with known risk patterns and provide a reasoned assessment.
 
-\- **\*\*General Agent\*\*** — a fallback for anything outside the above three categories.
+## 5.4 Specialized Agents
 
-\- **\*\*Response Aggregator\*\*** — formats the selected agent's output into one consistent structured response for the frontend.
+Different questions require different tools.
 
-**\*\*OCR → Scam Agent integration\*\***
+For example:
 
-A user can upload a screenshot of a suspicious message or offer. The backend runs OCR (Tesseract) on it, and the extracted text is passed directly into the Scam Detector Agent for analysis — so OCR output is actually consumed by the reasoning pipeline, not just displayed as raw text.
+- Exchange-rate questions → Web Search
+- Scam questions → RAG + Search
+- Channel questions → RAG + Search
+- General questions → General LLM Agent
 
-**\*\*Resilience\*\***
+This is why a **multi-agent architecture** is useful for RemitGuard.
 
-All LLM calls go through a primary/fallback wrapper (\`app/llm.py\`): Google Gemini is tried first, and the system automatically falls back to Groq if Gemini is unavailable or rate-limited, so a single provider hiccup doesn't take the whole app down.
+---
 
-**## 7. Project Tree**
+# 6. System Architecture
 
-\`\`\`
+```text
+                         User
+                          │
+                          │
+                    Text / Screenshot
+                          │
+                          ▼
+                    Router Agent
+                          │
+              ┌───────────┼───────────┐
+              │           │           │
+              ▼           ▼           ▼
+            Rate        Scam       Channel
+            Agent       Agent       Agent
+              │           │           │
+           Search      RAG +       RAG +
+                       Search      Search
+              │           │           │
+              └───────────┼───────────┘
+                          │
+                          ▼
+                    General Agent
+                    (when needed)
+                          │
+                          ▼
+                 Response Aggregator
+                          │
+                          ▼
+                  Final Response
+```
 
+## Main Components
+
+**Router Agent**  
+Determines which specialized agent should handle the user's request.
+
+**Rate Comparator Agent**  
+Uses web search to retrieve current exchange-rate information.
+
+**Scam Detector Agent**  
+Uses RAG and web information to identify potential scam or legality risks.
+
+**Channel Advisor Agent**  
+Uses regulatory knowledge and web search to recommend safer transfer channels.
+
+**General Agent**  
+Handles general remittance-related questions that do not fit the other categories.
+
+**Response Aggregator**  
+Provides a consistent final response format for the frontend.
+
+---
+
+# 7. AI Agents
+
+## 7.1 Router Agent
+
+The Router Agent classifies the user's query into one of four categories:
+
+```text
+rate
+scam
+channel
+general
+```
+
+This allows the system to send each request to the most appropriate specialized agent.
+
+---
+
+## 7.2 Rate Comparator Agent
+
+The Rate Comparator Agent handles exchange-rate questions.
+
+It uses **Tavily web search** to retrieve current information from the internet.
+
+Example query:
+
+```text
+What is the current USD to BDT exchange rate today?
+```
+
+The retrieved information is then provided to the LLM so that the response is grounded in current web information instead of relying only on model knowledge.
+
+---
+
+## 7.3 Scam Detector Agent
+
+The Scam Detector Agent evaluates potentially suspicious remittance situations.
+
+It uses:
+
+- RAG retrieval
+- Regulatory documents
+- BFIU information
+- FATF reports
+- AML/CFT information
+- Web search
+
+The agent looks for potential warning signs and explains why a situation may be risky.
+
+The system avoids automatically declaring something a scam without sufficient evidence.
+
+---
+
+## 7.4 Channel Advisor Agent
+
+The Channel Advisor Agent helps users understand safer and regulated remittance options.
+
+It combines:
+
+- RAG knowledge
+- Regulatory information
+- Web search
+
+The goal is to guide users toward legitimate transfer channels and away from potentially risky informal methods.
+
+---
+
+## 7.5 General Agent
+
+The General Agent acts as a fallback for questions that do not specifically belong to the rate, scam, or channel categories.
+
+---
+
+## 7.6 Response Aggregator
+
+The Response Aggregator converts the selected agent's output into a consistent response structure for the frontend.
+
+This allows the frontend to present responses in a unified way regardless of which agent handled the request.
+
+---
+
+# 8. Screenshot OCR and Scam Analysis
+
+RemitGuard also supports screenshot-based analysis.
+
+A user can upload a screenshot containing a suspicious:
+
+- Message
+- Exchange-rate offer
+- Remittance advertisement
+- Transfer instruction
+
+The backend uses **Tesseract OCR** to extract text from the screenshot.
+
+The extracted text can then be used as input for scam analysis.
+
+```text
+Screenshot
+    │
+    ▼
+Tesseract OCR
+    │
+    ▼
+Extracted Text
+    │
+    ▼
+Scam Detector
+    │
+    ├── RAG Retrieval
+    ├── Web Search
+    └── LLM Analysis
+    │
+    ▼
+Risk Assessment
+```
+
+This allows the system to analyze information that would otherwise require the user to manually type the message.
+
+---
+
+# 9. LLM Resilience
+
+RemitGuard uses a primary/fallback LLM architecture implemented in:
+
+```text
+backend/app/llm.py
+```
+
+The system first attempts to use **Google Gemini**.
+
+If Gemini is unavailable or encounters an error such as a rate limit, the system falls back to **Groq**.
+
+```text
+User Request
+     │
+     ▼
+Google Gemini
+     │
+     ├── Success ──────► Response
+     │
+     └── Failure
+            │
+            ▼
+          Groq
+            │
+            ▼
+         Response
+```
+
+This improves system resilience by reducing dependence on a single LLM provider.
+
+---
+
+# 10. Project Structure
+
+```text
 remitguard/
-
+│
 ├── .gitignore
-
 ├── README.md
-
+│
 ├── backend/
-
-│   ├── .env.example
-
-│   ├── requirements.txt
-
-│   ├── test\_rate\_agent.py
-
-│   ├── test\_router.py
-
-│   ├── test\_graph.py
-
-│   └── app/
-
-│       ├── main.py                # FastAPI app — routes: /health, /chat, /ocr, /analyze-screenshot
-
-│       ├── config.py              # Settings loaded from .env (pydantic-settings)
-
-│       ├── llm.py                 # Primary (Gemini) / fallback (Groq) LLM wrapper
-
-│       ├── graph.py               # LangGraph orchestration: router → agent → aggregator
-
-│       ├── agents/
-
-│       │   ├── router\_agent.py    # Classifies intent
-
-│       │   ├── rate\_agent.py      # Exchange rate lookup (Tavily search)
-
-│       │   ├── scam\_agent.py      # Scam/legality analysis (RAG)
-
-│       │   ├── channel\_agent.py   # Safe channel recommendation (RAG + search)
-
-│       │   ├── general\_agent.py   # Fallback for out-of-scope queries
-
-│       │   └── aggregator.py      # Combines agent output into the final response
-
-│       ├── tools/
-
-│       │   ├── search\_tool.py         # Tavily search grounding
-
-│       │   └── vectorstore\_tool.py    # Chroma retrieval
-
-│       └── rag/
-
-│           ├── ingest.py          # Chunks + embeds documents into Chroma
-
-│           └── data/              # Source PDFs / TXT (regulatory documents)
-
+│   ├── .env.example
+│   ├── requirements.txt
+│   ├── test_rate_agent.py
+│   ├── test_router.py
+│   ├── test_graph.py
+│   │
+│   └── app/
+│       ├── main.py
+│       ├── config.py
+│       ├── llm.py
+│       ├── graph.py
+│       │
+│       ├── agents/
+│       │   ├── router_agent.py
+│       │   ├── rate_agent.py
+│       │   ├── scam_agent.py
+│       │   ├── channel_agent.py
+│       │   ├── general_agent.py
+│       │   └── aggregator.py
+│       │
+│       ├── tools/
+│       │   ├── search_tool.py
+│       │   └── vectorstore_tool.py
+│       │
+│       └── rag/
+│           ├── ingest.py
+│           └── data/
+│               └── regulatory documents
+│
 └── frontend/
+    ├── package.json
+    └── src/
+        ├── App.jsx
+        ├── App.css
+        └── index.css
+```
 
-    ├── package.json
+---
 
-    └── src/
+# 11. How to Run the Project
 
-        ├── App.jsx                # Chat UI + screenshot upload
+This section provides a beginner-friendly setup guide.
 
-        ├── App.css
+## Prerequisites
 
-        └── index.css
+Install the following:
 
-\`\`\`
+- **Python 3.10+**
+- **Node.js 18+**
+- **Git**
+- **Tesseract OCR**
 
-**## 8. How to Run This Project (Beginner-Friendly)**
+### Tesseract OCR
 
-This guide assumes no prior setup — follow it top to bottom.
+For Windows, install Tesseract using the UB Mannheim build.
 
-**### Prerequisites**
+The default installation path used by the current backend is:
 
-Install these first if you don't already have them:
+```text
+C:\Program Files\Tesseract-OCR\tesseract.exe
+```
 
-\- **\*\*Python 3.10+\*\*** — [python.org/downloads]\(https\://www\.python.org/downloads/)
+---
 
-\- **\*\*Node.js 18+\*\*** (includes npm) — [nodejs.org]\(https\://nodejs.org/)
+## Step 1 — Clone the Repository
 
-\- **\*\*Git\*\*** — [git-scm.com]\(https\://git-scm.com/)
-
-\- **\*\*Tesseract OCR\*\*** (needed for the screenshot-scam-check feature):
-
-  - Windows: download the installer from [UB-Mannheim's Tesseract build]\(https\://github.com/UB-Mannheim/tesseract/wiki) and install it (default path \`C:\Program Files\Tesseract-OCR\tesseract.exe\`)
-
-  - Mac: \`brew install tesseract\`
-
-  - Linux: \`sudo apt install tesseract-ocr\`
-
-**### Step 1 — Get the code**
-
-\`\`\`bash
-
-git clone \<your-repo-url>
-
+```bash
+git clone https://github.com/TheKhanSaheb/remit_guard
 cd remitguard
+```
 
-\`\`\`
+---
 
-**### Step 2 — Get free API keys**
+## Step 2 — Create the Backend Environment
 
-You'll need free accounts (no credit card required) at:
+Open a terminal inside the project:
 
-\- [Google AI Studio]\(https\://aistudio.google.com/app/apikey) → \`GOOGLE\_API\_KEY\` (primary LLM)
-
-\- [Groq]\(https\://console.groq.com/keys) → \`GROQ\_API\_KEY\` (fallback LLM)
-
-\- [Tavily]\(https\://tavily.com) → \`TAVILY\_API\_KEY\` (web search)
-
-\- [LangSmith]\(https\://smith.langchain.com) → \`LANGCHAIN\_API\_KEY\` / \`LANGSMITH\_API\_KEY\` (tracing)
-
-**### Step 3 — Backend setup**
-
-\`\`\`bash
-
+```bash
 cd backend
+```
 
+Create a virtual environment:
+
+```bash
 python -m venv venv
+```
 
-\# Windows:
+### Windows
 
+```bash
 venv\Scripts\activate
+```
 
-\# Mac/Linux:
+### macOS/Linux
 
+```bash
 source venv/bin/activate
+```
 
+---
+
+## Step 3 — Install Dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-\`\`\`
+---
 
-Copy \`.env.example\` to \`.env\` and fill in the keys from Step 2:
+## Step 4 — Configure API Keys
 
-\`\`\`bash
+Create a `.env` file inside the `backend` directory.
 
-cp .env.example .env        # Windows: copy .env.example .env
+Use `.env.example` as the template.
 
-\`\`\`
+Required services include:
 
-Build the RAG knowledge base (only needs to be done once, or whenever documents in \`app/rag/data/\` change):
+- Google AI Studio — Gemini
+- Groq — fallback LLM
+- Tavily — web search
+- LangSmith — tracing
 
-\`\`\`bash
+Example:
 
+```env
+GOOGLE_API_KEY=
+GROQ_API_KEY=
+TAVILY_API_KEY=
+
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=
+LANGCHAIN_PROJECT=remitguard
+
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=
+LANGSMITH_ENDPOINT=https://api.smith.langchain.com
+LANGSMITH_PROJECT=remitguard
+
+APP_ENV=development
+```
+
+> **Important:** Never commit `.env` or API keys to GitHub.
+
+---
+
+# 12. Build the RAG Knowledge Base
+
+RemitGuard uses a local vector database containing regulatory and financial documents.
+
+After installing the dependencies, run:
+
+```bash
 python -m app.rag.ingest
+```
 
-\`\`\`
+This process:
 
-Start the backend server:
+1. Loads documents from `app/rag/data/`
+2. Splits them into smaller chunks
+3. Creates local embeddings
+4. Stores the embeddings in ChromaDB
 
-\`\`\`bash
+The resulting vector database is stored in:
 
-uvicorn app.main\:app --reload
+```text
+backend/app/rag/chroma_db/
+```
 
-\`\`\`
+---
 
-Leave this terminal running. Visit \`http\://127.0.0.1:8000/health\` — you should see \`{"status": "ok", ...}\`.
+# 13. Start the Backend
 
-**### Step 4 — Frontend setup**
+From the `backend` directory:
 
-Open a **\*\*new\*\*** terminal:
+```bash
+uvicorn app.main:app --reload
+```
 
-\`\`\`bash
+The backend should start at:
 
+```text
+http://127.0.0.1:8000
+```
+
+Health check:
+
+```text
+http://127.0.0.1:8000/health
+```
+
+Expected response:
+
+```json
+{
+  "status": "ok"
+}
+```
+
+---
+
+# 14. Start the Frontend
+
+Open a **new terminal**.
+
+Go to the frontend directory:
+
+```bash
 cd remitguard/frontend
+```
 
+Install dependencies:
+
+```bash
 npm install
+```
 
+Start the development server:
+
+```bash
 npm run dev
+```
 
-\`\`\`
+The frontend normally runs at:
 
-Open the URL it prints (usually \`http\://127.0.0.1:5173\`) in your browser.
+```text
+http://127.0.0.1:5173
+```
 
-**### Step 5 — Try it out**
+Open the URL shown in the terminal.
 
-\- Ask a rate question: *\*"What's the USD to BDT rate via bKash today?"\**
+---
 
-\- Ask a scam question: *\*"Is it safe to send money through hundi to save on fees?"\**
+# 15. Example Queries
 
-\- Upload a screenshot of a suspicious offer using the "Upload screenshot" button.
+### Exchange Rate
 
-**### Common issues**
+```text
+What is the current USD to BDT exchange rate today?
+```
 
-\| Problem | Fix |
+### Scam Detection
 
-\|---|---|
+```text
+Someone offered me a very high USD to BDT rate if I send money through a personal account. Is this safe?
+```
 
-\| \`ModuleNotFoundError\` | Run \`pip install -r requirements.txt\` again inside the activated venv |
+### Hundi/Hawala Risk
 
-\| \`ValidationError\` on startup | A required key is missing from \`.env\` — check against \`.env.example\` |
+```text
+Is Hundi a safe way to send money to Bangladesh?
+```
 
-\| \`429 RESOURCE\_EXHAUSTED\` during ingest | You've hit Gemini's free-tier rate limit — this project uses local HuggingFace embeddings instead, so this shouldn't occur unless you've changed \`ingest.py\` |
+### Safe Channel
 
-\| \`tesseract is not installed or in your PATH\` | Install Tesseract (see Prerequisites) and set \`TESSERACT\_CMD\` in \`.env\` to its install path |
+```text
+What is the safest way to send money from abroad to Bangladesh?
+```
 
-\| CORS error in browser console | Make sure the backend is running on port 8000 and the frontend on 5173 |
+### Screenshot Analysis
 
-**## 9. Environment Variables**
+Upload a screenshot containing a suspicious remittance message or offer.
 
-See \`backend/.env.example\` for the full list. Never commit \`.env\` — it's already excluded via \`.gitignore\`.
+---
 
-\`\`\`
+# 16. RAG Knowledge Base
 
-GOOGLE\_API\_KEY=
+The Scam Detector and Channel Advisor agents use a Chroma vector database containing relevant regulatory and financial documents.
 
-GROQ\_API\_KEY=
+The knowledge base includes sources related to:
 
-TAVILY\_API\_KEY=
+- Bangladesh Bank foreign exchange and remittance regulations
+- Bangladesh Money Laundering Prevention Act 2015
+- Bangladesh Money Laundering Prevention Rules 2019
+- BFIU circulars
+- BFIU Annual Report
+- APG Bangladesh Mutual Evaluation Report
+- FATF reports on Hawala/Hundi and underground banking
 
-LANGCHAIN\_TRACING\_V2=true
+The documents are stored in:
 
-LANGCHAIN\_API\_KEY=
+```text
+backend/app/rag/data/
+```
 
-LANGCHAIN\_PROJECT=remitguard
+Documents are processed using:
 
-LANGSMITH\_TRACING=true
+```text
+Chunk size:       1200 characters
+Chunk overlap:    150 characters
+Embedding model:  sentence-transformers/all-MiniLM-L6-v2
+Vector database:  ChromaDB
+```
 
-LANGSMITH\_API\_KEY=
+The embedding model runs locally, so document ingestion does not require an external embedding API.
 
-LANGSMITH\_ENDPOINT=https\://api.smith.langchain.com
+---
 
-LANGSMITH\_PROJECT=remitguard
+# 17. Technology Stack
 
-APP\_ENV=development
+| Layer | Technology |
+|---|---|
+| Frontend | React + Vite |
+| Backend | FastAPI |
+| Agent Orchestration | LangGraph |
+| Primary LLM | Google Gemini |
+| Fallback LLM | Groq |
+| Web Search | Tavily |
+| RAG Framework | LangChain |
+| Embeddings | HuggingFace Sentence Transformers |
+| Embedding Model | `all-MiniLM-L6-v2` |
+| Vector Database | ChromaDB |
+| OCR | Tesseract + pytesseract |
+| Tracing | LangSmith |
+| Configuration | Python dotenv / Pydantic Settings |
 
-\# Optional — only needed if Tesseract isn't on your system PATH
+---
 
-TESSERACT\_CMD=
+# 18. LangSmith Tracing
 
-\`\`\`
+RemitGuard uses LangSmith for observing and debugging the AI workflow.
 
-**## 10. RAG Knowledge Base**
+Tracing can provide visibility into:
 
-The Scam Detector and Channel Advisor agents retrieve from a Chroma vector store built from real regulatory documents:
+- Router execution
+- Agent execution
+- LLM calls
+- Web search
+- RAG retrieval
+- Tool execution
+- Workflow execution
 
-\- Bangladesh Bank foreign exchange / remittance circulars
+Representative public traces are available in the **Submission Links** section at the top of this README.
 
-\- Bangladesh Money Laundering Prevention Act (2015) & Rules (2019)
+---
 
-\- BFIU circulars and Annual Report
+# 19. Requirements Coverage
 
-\- APG Bangladesh Mutual Evaluation Report
+| Requirement | RemitGuard Implementation |
+|---|---|
+| Real-world problem | Remittance safety, exchange-rate verification, scam detection, and safe-channel guidance |
+| Frontend | React + Vite chat interface |
+| Screenshot Upload | Frontend screenshot upload functionality |
+| Backend | FastAPI |
+| Structured AI Workflow | LangGraph Router → Specialized Agent → Aggregator |
+| Multiple Agents | Router, Rate Comparator, Scam Detector, Channel Advisor, General Agent |
+| Internet Search | Tavily search tool |
+| Search Grounding | Web search results supplied to relevant agents |
+| OCR | Tesseract OCR |
+| RAG | Regulatory and scam knowledge base |
+| Vector Database | ChromaDB |
+| Local Embeddings | `sentence-transformers/all-MiniLM-L6-v2` |
+| LLM Resilience | Gemini → Groq fallback |
+| LangSmith | Agent, tool, retrieval, and LLM tracing |
+| Environment Security | API keys stored in `.env` |
+| Documentation | Setup, architecture, workflow, RAG, technology stack, and submission links |
 
-\- FATF reports on hawala/hundi and underground banking
+---
 
-Documents live in \`backend/app/rag/data/\`. \`ingest.py\` chunks them (1200 characters, 150 overlap), embeds them locally with \`sentence-transformers/all-MiniLM-L6-v2\` (no API calls, no rate limits), and stores them in a persistent Chroma collection at \`backend/app/rag/chroma\_db/\`.
+# 20. Common Issues
 
-**## 11. Tech Stack**
+| Problem | Solution |
+|---|---|
+| `ModuleNotFoundError` | Run `pip install -r requirements.txt` inside the activated virtual environment |
+| `ValidationError` on startup | Check that the required API keys exist in `.env` |
+| Gemini `429 RESOURCE_EXHAUSTED` | The RAG pipeline uses local HuggingFace embeddings instead of Gemini embeddings |
+| Tesseract not found | Install Tesseract and verify the configured executable path |
+| CORS error | Make sure the backend is running on port `8000` and the frontend is running on port `5173` |
+| Frontend cannot connect to backend | Start the FastAPI backend before using the frontend |
 
-\| Layer | Technology |
+---
 
-\|---|---|
+# 21. Security
 
-\| Frontend | React (Vite) |
+API keys are loaded from environment variables.
 
-\| Backend | FastAPI |
+The following files should **never** be committed to GitHub:
 
-\| Agent orchestration | LangGraph |
+```text
+.env
+```
 
-\| Primary LLM | Google Gemini (\`langchain-google-genai\`) |
+Use:
 
-\| Fallback LLM | Groq |
+```text
+.env.example
+```
 
-\| Embeddings | HuggingFace \`sentence-transformers/all-MiniLM-L6-v2\` (local) |
+to document the required environment variables without exposing secret values.
 
-\| Vector database | ChromaDB |
+If an API key has ever been accidentally committed to a public repository, it should be revoked and replaced.
 
-\| Internet search / grounding | Tavily |
+---
 
-\| OCR | Tesseract (\`pytesseract\`) |
+# 22. Project Limitations
 
-\| Tracing | LangSmith |
+RemitGuard is designed as an **informational decision-support system**, not as a financial institution, legal advisor, or guaranteed scam-detection service.
 
-**## 12. LangSmith Tracing**
+Exchange rates and online information can change.
 
-Every agent call, tool call, and LLM invocation is traced to LangSmith under the \`remitguard\` project once \`LANGSMITH\_TRACING=true\` and a valid \`LANGSMITH\_API\_KEY\` are set in \`.env\`. Representative trace links demonstrating router → agent → retrieval/search → aggregator execution are provided in the Submission Links section above.
+Scam detection is also probabilistic. Therefore, users should verify important financial decisions with trusted banks, regulated financial institutions, or appropriate authorities before transferring money.
 
-**## 13. Requirements Coverage**
+---
 
-RemitGuard covers the major project requirements as follows:
+# 23. Future Improvements
 
-\| Requirement | RemitGuard Implementation |
+Potential future improvements include:
 
-\|---|---|
+- More advanced exchange-rate comparison
+- Additional remittance service coverage
+- Improved OCR preprocessing
+- More regulatory documents
+- Better structured risk scoring
+- More extensive evaluation datasets
+- Additional language support
+- Improved multi-agent coordination
+- Historical rate analysis
+- More detailed source attribution
 
-\| Real-world problem | Remittance safety, exchange-rate verification, scam detection, and safe-channel guidance |
+---
 
-\| Front-end | React + Vite chat interface with screenshot upload |
+# 24. Conclusion
 
-\| Back-end | FastAPI |
+RemitGuard combines **multi-agent AI, real-time web search, RAG, vector databases, OCR, and LLM reasoning** to address a practical financial-safety problem.
 
-\| Structured AI workflow | LangGraph Router → specialized Agent → Aggregator |
+Instead of relying on a single general-purpose chatbot, the system uses specialized agents for different remittance-related tasks and grounds their responses using external information and regulatory documents.
 
-\| Multiple agents | Router, Rate Comparator, Scam Detector, Channel Advisor, General Agent |
+The project demonstrates how AI agents can be combined with real-world data sources to provide users with more useful and context-aware assistance for safer remittance decisions.
 
-\| Internet Search | Tavily search tool for current/external information |
-
-\| Search grounding | Retrieved web information is supplied to the relevant agent/LLM |
-
-\| OCR | Tesseract OCR for uploaded screenshots |
-
-\| RAG | Regulatory/scam knowledge base with document retrieval |
-
-\| Vector database | ChromaDB |
-
-\| Embeddings | Local \`sentence-transformers/all-MiniLM-L6-v2\` |
-
-\| LangSmith | Tracing for agent, tool, retrieval, and LLM execution |
-
-\| Environment security | API keys stored in \`.env\`, not committed to GitHub |
-
-\| Documentation | Setup, architecture, workflow, RAG, tech stack, and submission links documented here |
+---
