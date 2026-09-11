@@ -1,1 +1,4 @@
 .env
+__pycache__/
+*.pyc
+backend/app/rag/chroma_db/
