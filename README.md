@@ -1,5 +1,9 @@
 # RemitGuard
 
+<p align="center">
+  <img src="images/remitguard-dashboard.png" alt="RemitGuard Dashboard" width="900">
+</p>
+
 > **A Multi-Agent AI Assistant for Safer International Remittances**
 
 RemitGuard is a multi-agent AI assistant designed to help people sending or receiving international remittances — especially migrant-worker families sending money to Bangladesh.
