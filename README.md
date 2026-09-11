@@ -16,9 +16,6 @@ RemitGuard is a multi-agent AI assistant that helps people sending or receiving 
 | **Rate Comparator Agent — Rate + Search** | https://smith.langchain.com/public/1570c209-6143-4817-b473-943125d60b56/r/01a0910a-ab6e-70f0-8dba-82ee889a2a03?start_time=2026-09-11T15%3A16%3A30.702233Z |
 | **Channel Advisor — RAG + Search** | https://smith.langchain.com/public/f56befb9-63b7-45c0-b7c1-ae16ae3b02e5/r/01a0910d-327b-72e0-a588-336a14efaea5?start_time=2026-09-11T15%3A19%3A16.347955Z |
 
-### LangSmith Trace Submission
-
-The submitted traces demonstrate the main RemitGuard workflow, including agent execution, tool calls, RAG/retrieval, web search, LLM execution, and the LangGraph agent workflow.
 
 
 **---**
